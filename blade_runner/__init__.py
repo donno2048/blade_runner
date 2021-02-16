@@ -1548,4 +1548,5 @@ def play(screen=screen):
         screen_shake = 10
     pygame.display.update()
     mainClock.tick(40)
-while True:play()
+def main():
+    while True: play()
