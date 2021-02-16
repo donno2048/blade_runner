@@ -8,4 +8,4 @@ or from GitHub:
 
 to run it you need to run the command:
 
-`python -m blade_runner`
+`blade-runner`
