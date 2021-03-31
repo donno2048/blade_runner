@@ -1,13 +1,11 @@
+# Use mouse right and left click and position to play
 import os
-
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame, sys, random, time, webbrowser, math
 from datetime import datetime
 from copy import deepcopy
-
 mainClock = pygame.time.Clock()
 from pygame.locals import *
-
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 pygame.display.set_caption('blade-runner')
@@ -15,12 +13,9 @@ WINDOWWIDTH = 600
 WINDOWHEIGHT = 400
 screen = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT), 0, 32)
 display = pygame.Surface((300, 200))
-
-
 def show_text(Text, X, Y, Spacing, WidthLimit, Font, surface, double=1, overflow='normal'):
     Text += ' '
     OriginalX = X
-    OriginalY = Y
     CurrentWord = ''
     if overflow == 'normal':
         for char in Text:
@@ -80,8 +75,6 @@ def show_text(Text, X, Y, Spacing, WidthLimit, Font, surface, double=1, overflow
                 X = OriginalX
                 Y += Font['Height']
         return X, Y
-
-
 def generate_font(FontImage, FontSpacingMain, TileSize, TileSizeY, color):
     FontSpacing = deepcopy(FontSpacingMain)
     FontOrder = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
@@ -104,8 +97,6 @@ def generate_font(FontImage, FontSpacingMain, TileSize, TileSizeY, color):
         num += 1
     FontSpacing['Height'] = TileSizeY
     return FontSpacing
-
-
 def rot_around(surf, img, base_x, base_y, img_offset_x, img_offset_y, deg):
     background_img = pygame.Surface(((img.get_width() + img_offset_x) * 2, (img.get_width() + img_offset_x) * 2))
     background_img.blit(img, (
@@ -117,8 +108,6 @@ def rot_around(surf, img, base_x, base_y, img_offset_x, img_offset_y, deg):
     rotated_img.set_colorkey((0, 0, 0))
     surf.blit(rotated_img, (
     base_x - int(original_size[0] / 2) - int(x_inc / 2), base_y - int(original_size[1] / 2) - int(y_inc / 2)))
-
-
 def point_degrees(p_1, p_2):
     x = p_2[0] - p_1[0]
     y = p_2[1] - p_1[1]
@@ -132,8 +121,6 @@ def point_degrees(p_1, p_2):
             return 90
     else:
         return math.degrees(math.atan(y / x)) + base_rotation
-
-
 def CollisionTest(Object1, ObjectList):
     CollisionList = []
     for Object in ObjectList:
@@ -141,17 +128,13 @@ def CollisionTest(Object1, ObjectList):
         if ObjectRect.colliderect(Object1):
             CollisionList.append(ObjectRect)
     return CollisionList
-
-
 class PhysicsObject(object):
-
     def __init__(self, x, y, x_size, y_size):
         self.width = x_size
         self.height = y_size
         self.rect = pygame.Rect(x, y, self.width, self.height)
         self.x = x
         self.y = y
-
     def move(self, Movement, platforms):
         self.x += Movement[0]
         self.rect.x = int(self.x)
@@ -178,22 +161,15 @@ class PhysicsObject(object):
             self.change_y = 0
             self.y = self.rect.y
         return collision_types
-
     def Draw(self):
         pygame.draw.rect(screen, (0, 0, 255), self.rect)
-
     def CollisionItem(self):
         CollisionInfo = [self.rect.x, self.rect.y, self.width, self.height]
         return CollisionInfo
-
-
 def flip(img, boolean=True):
     return pygame.transform.flip(img, boolean, False)
-
-
 class entity(object):
     global animation_database
-
     def __init__(self, x, y, size_x, size_y):
         self.x = x
         self.y = y
@@ -206,7 +182,6 @@ class entity(object):
         self.animation_tags = []
         self.flip = False
         self.offset = [0, 0]
-
     def set_pos(self, x, y):
         self.x = x
         self.y = y
@@ -214,38 +189,28 @@ class entity(object):
         self.obj.y = y
         self.obj.rect.x = x
         self.obj.rect.y = y
-
     def move(self, momentum, platforms):
         collisions = self.obj.move(momentum, platforms)
         self.x = self.obj.x
         self.y = self.obj.y
         return collisions
-
     def rect(self):
         return pygame.Rect(self.x, self.y, self.size_x, self.size_y)
-
     def set_flip(self, boolean):
         self.flip = boolean
-
     def set_animation_tags(self, tags):
         self.animation_tags = tags
-
     def set_animation(self, sequence):
         self.animation = sequence
         self.animation_frame = 0
-
     def clear_animation(self):
         self.animation = None
-
     def set_image(self, image):
         self.image = image
-
     def set_offset(self, offset):
         self.offset = offset
-
     def set_frame(self, amount):
         self.animation_frame = amount
-
     def change_frame(self, amount):
         self.animation_frame += amount
         if self.animation != None:
@@ -259,33 +224,23 @@ class entity(object):
                     self.animation_frame -= len(self.animation)
                 else:
                     self.animation_frame = len(self.animation) - 1
-
     def get_current_img(self):
-        if self.animation == None:
-            if self.image != None:
+        if self.animation is None:
+            if self.image is not None:
                 return flip(self.image, self.flip)
             else:
                 return None
         else:
             return flip(animation_database[self.animation[self.animation_frame]], self.flip)
-
     def display(self, surface, scroll):
-        if self.animation == None:
-            if self.image != None:
+        if self.animation is None:
+            if self.image is not None:
                 surface.blit(flip(self.image, self.flip),
                              (int(self.x) - scroll[0] + self.offset[0], int(self.y) - scroll[1] + self.offset[1]))
         else:
             surface.blit(flip(animation_database[self.animation[self.animation_frame]], self.flip),
                          (int(self.x) - scroll[0] + self.offset[0], int(self.y) - scroll[1] + self.offset[1]))
-
-
-# animation stuff
-global animation_database
 animation_database = {}
-
-
-# a sequence looks like [[0,1],[1,1],[2,1],[3,1],[4,2]]
-# the first numbers are the image name(as integer), while the second number shows the duration of it in the sequence
 def animation_sequence(sequence, base_path, colorkey=(255, 255, 255), transparency=255):
     global animation_database
     result = []
@@ -298,28 +253,15 @@ def animation_sequence(sequence, base_path, colorkey=(255, 255, 255), transparen
         for i in range(frame[1]):
             result.append(image_id)
     return result
-
-
 def get_frame(ID):
     global animation_database
     return animation_database[ID]
-
-
-# FPS -------------------------------------------------------- #
 def ms():
     return int(round(time.time() * 1000))
-
-
 def get_ms():
     global start_time
     return int(round(time.time() * 1000)) - start_time
-
-
-global start_time
 start_time = ms()
-
-
-# Font ------------------------------------------------------- #
 def get_text_width(text, spacing):
     global font_dat
     width = 0
@@ -329,9 +271,6 @@ def get_text_width(text, spacing):
         elif char == ' ':
             width += font_dat['A'][0] + spacing
     return width
-
-
-global font_dat
 font_dat = {'A': [3], 'B': [3], 'C': [3], 'D': [3], 'E': [3], 'F': [3], 'G': [3], 'H': [3], 'I': [3], 'J': [3],
             'K': [3], 'L': [3], 'M': [5], 'N': [3], 'O': [3], 'P': [3], 'Q': [3], 'R': [3], 'S': [3], 'T': [3],
             'U': [3], 'V': [3], 'W': [5], 'X': [3], 'Y': [3], 'Z': [3],
@@ -344,9 +283,6 @@ font_dat = {'A': [3], 'B': [3], 'C': [3], 'D': [3], 'E': [3], 'F': [3], 'G': [3]
             '<': [3], '>': [3], ';': [1]}
 font_0 = generate_font(os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/font/small_font.png'), font_dat, 5, 8, (16, 30, 41))
 font_1 = generate_font(os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/font/small_font.png'), font_dat, 5, 8, (248, 248, 248))
-
-
-# Functions -------------------------------------------------- #
 def reduce(num, amount):
     if num >= amount:
         num -= amount
@@ -355,22 +291,16 @@ def reduce(num, amount):
     else:
         num = 0
     return num
-
-
 def loc(x, y):
     return str(x) + ';' + str(y)
-
-
 def ordered_render(img, pos, z=None, secondary_sort=0):
     x = pos[0]
     y = pos[1]
     global for_render, image_cache
-    if z == None:
+    if z is None:
         z = y + img.get_height()
     image_cache.append(img)
     for_render.append([z, secondary_sort, x, y, len(image_cache) - 1])
-
-
 def get_nearby_tiles(pos, tiles):
     global decor
     nearby_tiles = []
@@ -385,16 +315,12 @@ def get_nearby_tiles(pos, tiles):
             elif pos_str in decor:
                 nearby_tiles.append([(pos[0] + x - 2) * 32, (pos[1] + y - 2) * 32, 32, 32])
     return nearby_tiles
-
-
 def cap(num, amount):
     if num > amount:
         num = amount
     if num < -amount:
         num = -amount
     return num
-
-
 def add_img_particles(img, base_pos, blood=True, duration=40):
     global particles
     width = img.get_width()
@@ -403,18 +329,11 @@ def add_img_particles(img, base_pos, blood=True, duration=40):
         for x in range(width):
             color = img.get_at((x, y))
             if color != (255, 255, 255, 255):
-                # color, x, y, x_momentum, y_momentum, duration
                 if blood == True:
-                    particles.append([(169, 59, 59), x + base_pos[0], y + base_pos[1], random.randint(0, 20) / 10 - 1,
-                                      random.randint(0, 20) / 10 - 1, random.randint(10, 30)])
-                particles.append(
-                    [color, x + base_pos[0], y + base_pos[1], 0, 0, random.randint(duration, int(duration * 1.5))])
-
-
+                    particles.append([(169, 59, 59), x + base_pos[0], y + base_pos[1], random.randint(0, 20) / 10 - 1, random.randint(0, 20) / 10 - 1, random.randint(10, 30)])
+                particles.append([color, x + base_pos[0], y + base_pos[1], 0, 0, random.randint(duration, int(duration * 1.5))])
 def flip(img, boolean):
     return pygame.transform.flip(img, boolean, False).copy()
-
-
 def add_item(item):
     global inventory
     for slot in inventory:
@@ -422,17 +341,12 @@ def add_item(item):
             slot[1] += 1
             return None
     for slot in inventory:
-        if slot[0] == None:
+        if slot[0] is None:
             slot[0] = item
             slot[1] = 1
             return None
-
-
-# Audio ------------------------------------------------------ #
 def load_snd(name):
     return pygame.mixer.Sound(os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/sfx/') + name + '.wav')
-
-
 hurt_s = load_snd('hurt')
 attack_s = load_snd('attack')
 dash_s = load_snd('dash')
@@ -441,23 +355,15 @@ hit_s = load_snd('hit')
 hit_decor_s = load_snd('hit_decor')
 attack_s.set_volume(0.5)
 dash_s.set_volume(0.3)
-
 pygame.mixer.music.load(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data/music/main.wav'))
-
-
-# Images ----------------------------------------------------- #
 def load_img(path):
     img = pygame.image.load(os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/') + path + '.png').convert()
     img.set_colorkey((255, 255, 255))
     return img
-
-
 bars_img = load_img('bars')
-
 tile_images = {'grass': load_img('tiles/grass'), 'muck': load_img('tiles/muck')}
 weapons = {'sword_0': load_img('weapons/sword_0'), 'sword_1': load_img('weapons/sword_1'),
            'sword_2': load_img('weapons/sword_2'), 'sword_3': load_img('weapons/sword_3')}
-# ID: img, offset y
 decor_images = {'bush': [load_img('decor/bush'), -2], 'blueberries': [load_img('decor/blueberries'), -2],
                 'tree': [load_img('decor/tree'), -18], 'apples': [load_img('decor/apples'), -18]}
 item_images = {'blueberries': load_img('items/blueberries'), 'apples': load_img('items/apples'),
@@ -470,25 +376,20 @@ weapon_items = {'sword_0': load_img('weapon_items/sword_0'), 'sword_1': load_img
 controls_img = load_img('controls')
 cloud_images = {'cloud_0': load_img('cloud_0'), 'cloud_1': load_img('cloud_1'), 'cloud_2': load_img('cloud_2'),
                 'cloud_3': load_img('cloud_3')}
-
 fly_stand_f = load_img('entities/fly/stand_f')
 fly_stand_b = load_img('entities/fly/stand_b')
 fly_fly_f = load_img('entities/fly/fly_f')
 fly_fly_b = load_img('entities/fly/fly_b')
-# Animations ------------------------------------------------- #
 player_walk_f = animation_sequence([[0, 3], [1, 2], [2, 3], [1, 2]],os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/entities/player/walk_f_'))
 player_walk_b = animation_sequence([[0, 3], [1, 2], [2, 3], [1, 2]], os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/entities/player/walk_b_'))
 player_stand_f = load_img('entities/player/stand_f')
 player_stand_b = load_img('entities/player/stand_b')
-
 dust_anim = animation_sequence([[0, 4], [1, 3], [2, 3], [3, 4], [4, 3], [5, 3], [6, 3], [7, 3], [8, 5]],
                                os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/misc_animations/dust_'))
-
 tank_main_f = animation_sequence([[0, 120], [1, 5], [2, 7], [1, 5]], os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/entities/tank/main_f_'))
 tank_main_b = animation_sequence([[0, 120], [1, 5], [2, 7], [1, 5]], os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/entities/tank/main_b_'))
 stomper_stomp = animation_sequence([[0, 80], [1, 4], [2, 4], [3, 2], [4, 2], [5, 2], [6, 2]],
                                    os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/entities/stomper/stomp_'))
-
 sword_0_gfx = animation_sequence(
     [[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1], [11, 1], [12, 1], [13, 1],
      [14, 1], [15, 1], [16, 1], [17, 1], [18, 1], [19, 1], [20, 1]],
@@ -505,24 +406,14 @@ sword_3_gfx = animation_sequence(
     [[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1], [11, 1], [12, 1], [13, 1],
      [14, 1], [15, 1], [16, 1], [17, 1], [18, 1], [19, 1], [20, 1]],
     os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/weapon_effects/sword_3_'))
-
 explosion_anim = animation_sequence(
     [[0, 4], [1, 4], [2, 4], [3, 4], [4, 6], [5, 6], [6, 6], [7, 4], [8, 4], [9, 4], [10, 4], [11, 4], [12, 4], [13, 4],
      [14, 4]],
     os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/misc_animations/explosion_'))
-
 weapon_gfx = {'sword_0': sword_0_gfx, 'sword_1': sword_1_gfx, 'sword_2': sword_2_gfx, 'sword_3': sword_3_gfx}
-
-
-def gen_id(name, frame):  # generate IDs for weapon GFX frames
+def gen_id(name, frame):
     return os.path.join(os.path.abspath(os.path.dirname(__file__)),'data/images/weapon_effects/' + name + '_' + str(frame))
-
-
-# Font ------------------------------------------------------- #
-# Variables -------------------------------------------------- #
-# type, x, y, z
 tiles = {'0;0': ['grass', 0, 0, 0], '0;1': ['grass', 0, 1, 0], '1;0': ['grass', 1, 0, 0], '1;1': ['grass', 1, 1, 0]}
-global decor
 decor = {}
 scroll_x = -100
 scroll_y = -50
@@ -530,17 +421,12 @@ SKY = (146, 244, 255)
 directions = [0, 0, 0, 0]
 dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 new_tile_timer = 0
-
 player = entity(0, 0, 20, 20)
 player.set_animation_tags(['loop'])
 player.animation = player_walk_f
-
 player_dir = 'down'
-
 player_knockback = [0, 0]
-
 current_weapon = 'sword_0'
-
 attack_sizes = {'sword_0': 104, 'sword_1': 124, 'sword_2': 140, 'sword_3': 144}
 attack_powers = {'sword_0': 4, 'sword_1': 5, 'sword_2': 7, 'sword_3': 7}
 attack_knockbacks = {'sword_0': 8, 'sword_1': 12, 'sword_2': 16, 'sword_3': 16}
@@ -548,80 +434,46 @@ enemy_knockbacks = {'fly': 4, 'stomper': 6, 'tank': 14}
 enemy_damages = {'fly': 3, 'stomper': 5, 'tank': 10}
 knockback_multipliers = {'fly': 1, 'stomper': 0.25, 'tank': 0.125}
 enemy_health = {'fly': 10, 'stomper': 12, 'tank': 24}
-
-attack_timer = -1  # goes to 360 for the degrees of the rotation
+attack_timer = -1
 attack_base = 0
 dash_timer = -1
 dash_start = [0, 0]
-
 health = 100
 energy = 50
-
 rate_x = 0.5
 rate_y = 0.5
-
-# the map is handled as a normal 2D map where the tiles are 32x32
-# the player is a 20x20 square
-
 last_frame = get_ms()
-
 alerts = []
-
-global for_render
 for_render = []
-global image_cache
 image_cache = []
-
 enemies = []
 enemy_types = ['fly', 'fly', 'fly', 'stomper', 'fly', 'fly', 'stomper', 'fly', 'fly', 'tank']
 decor_types = ['bush', 'bush', 'bush', 'bush', 'tree', 'blueberries', 'blueberries', 'tree', 'tree', 'apples']
 cloud_types = ['cloud_0', 'cloud_0', 'cloud_1', 'cloud_0', 'cloud_0', 'cloud_1', 'cloud_2']
-
-global particles
 particles = []
-
 screen_shake = 0
-
 new_game = 180
-
 hurt = 0
-
 lock_mouse = False
-
 time_alive = 0
-
 explosions = []
-
 projectiles = []
-
 dust = []
-
 paused = False
-
 minutes = 0
-
 remove_tiles = []
-
 next_enemy = None
-
-# type, x, y, scroll_rate, speed
 clouds = []
 for i in range(10):
     depth = random.randint(0, 5) / 10 + 0.25
     clouds.append([random.choice(cloud_types), random.randint(-44, 290) + scroll_x * depth,
                    random.randint(0, 200) + scroll_y * depth, depth, random.randint(4, 10) / 20])
-
-global inventory
 inventory = [[None, 0, -30], [None, 0, -30], [None, 0, -30], [None, 0, -30]]
-
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.65)
-
-
 def play(screen=screen):
     global scroll_x, scroll_y, time_alive, weapon_rot, new_game, minutes, new_tile_timer, attack_timer, player_knockback, dash_timer, player, tiles, rate_y, rate_x, decor, current_weapon, projectiles, enemies, remove_tiles, particles, explosions, lock_mouse, dust, WINDOWWIDTH, WINDOWHEIGHT, for_render, image_cache, health, next_enemy, hurt, screen_shake, wenemy_offset, tile_z, dash_start, attack_base, weapon_gfx_img, energy, last_frame, paused, inventory, player_dir, FPS
     display.fill(SKY)
-    # Clouds ------------------------------------------------- #
     if random.randint(1, 80) == 1:
         depth = random.randint(0, 5) / 10 + 0.25
         t = random.choice(cloud_types)
@@ -639,7 +491,6 @@ def play(screen=screen):
         n += 1
     if time_alive == 1400:
         next_enemy = 'tank'
-    # Background Logic --------------------------------------- #
     if new_game != 0:
         new_game -= 1
         new_tile_rate = 2
@@ -651,23 +502,22 @@ def play(screen=screen):
         new_tile_timer += 1
     if new_tile_timer >= new_tile_rate:
         keys = []
-        for key in tiles.keys():  # get key list
+        for key in tiles.keys():
             keys.append(key)
         not_placed = True
-        while not_placed:  # don't stop until a tile is placed
-            key = random.choice(keys)  # pick a random tile
+        while not_placed:
+            key = random.choice(keys)
             open_spots = []
-            for direction in dirs:  # check all directions for the tile
+            for direction in dirs:
                 x = tiles[key][1] + direction[0]
                 y = tiles[key][2] + direction[1]
                 if loc(x, y) not in tiles:
-                    open_spots.append([x, y])  # add open tile
+                    open_spots.append([x, y])
             if open_spots != []:
-                spot = random.choice(open_spots)  # pick open tile
+                spot = random.choice(open_spots)
                 tiles[loc(spot[0], spot[1])] = ['grass', spot[0], spot[1], 200]  # place tile
                 if random.randint(1, int((0.7 / time_alive + 1 / 2000) * 5000)) == 1:
                     if new_game == 0:
-                        # type, entity, knockback, health, invulnerable
                         t = random.choice(enemy_types)
                         if t == 'tank':
                             if time_alive < 2000:
@@ -681,14 +531,11 @@ def play(screen=screen):
                     decor[loc(spot[0], spot[1])] = [random.choice(decor_types), spot[0], spot[1]]
                 not_placed = False
         new_tile_timer = 0
-    # Handle Player ------------------------------------------ #
     player_standing = False
-
     if attack_timer != -1:
         attack_timer += 45
         if attack_timer >= 900:
             attack_timer = -1
-
     while abs(player_knockback[0]) + abs(player_knockback[1]) > 30:
         if abs(player_knockback[0]) > abs(player_knockback[1]):
             while abs(player_knockback[0]) > 15:  # knockback cap
@@ -716,8 +563,6 @@ def play(screen=screen):
             speed = 24
         elif current_weapon == 'sword_3':
             speed = 28
-
-    # slower on muck
     pos = loc(int(round((player.x - 0.5) / 32, 0)), int(round((player.y - 0.5) / 32, 0)))
     try:
         if tiles[pos][0] == 'muck':
@@ -731,10 +576,8 @@ def play(screen=screen):
                     tiles[pos][0] = 'grass'
     except KeyError:
         pass
-
     movement[1] += rate_y * speed * 1.2 - rate_x * speed
     movement[0] += rate_y * speed * 1.2 + rate_x * speed
-
     if rate_y > 0:
         player.animation = player_walk_f
         player_dir = 'down'
@@ -754,7 +597,6 @@ def play(screen=screen):
         player.set_flip(False)
     elif rate_x < 0:
         player.set_flip(True)
-
     if attack_timer != -1:
         if (weapon_rot % 360 < 90) or (weapon_rot % 360 > 270):
             player.set_flip(False)
@@ -766,7 +608,6 @@ def play(screen=screen):
         else:
             player.animation = player_walk_b
             player_dir = 'up'
-
     nearby_collidables = []
     player_loc = [int(player.x / 32), int(player.y / 32)]
     for y in range(7):
@@ -783,7 +624,6 @@ def play(screen=screen):
     movement[1] = cap(movement[1], 24)
     player.move(movement, nearby_collidables)
     player_img = player.get_current_img()
-    # Handle Attacks ----------------------------------------- #
     hit_enemy = False
     hit_decor = False
     been_hurt = False
@@ -843,7 +683,6 @@ def play(screen=screen):
         hit_s.play()
     if been_hurt:
         hurt_s.play()
-    # Remove Tiles ------------------------------------------- #
     n = 0
     for tile in remove_tiles:
         try:
@@ -854,7 +693,6 @@ def play(screen=screen):
             remove_tiles.pop(n)
             n -= 1
         n += 1
-    # Render Tiles ------------------------------------------- #
     temp_scroll_x = scroll_x + 5
     temp_scroll_y = scroll_y - 93
     start_pos = [int(temp_scroll_x / 28) + int(temp_scroll_y / 14) + 4,
@@ -876,8 +714,8 @@ def play(screen=screen):
                         remove_list.append(key)
             except KeyError:
                 pass
-    for i in range(render_box_size * 2 - 1):  # handle all the diagonals
-        for i2 in range(render_box_size):  # iterate through the tiles within the diagonals
+    for i in range(render_box_size * 2 - 1):
+        for i2 in range(render_box_size):
             pos = [i - i2, i2]
             try:
                 # print(render_box[loc(pos[0]+start_pos[0],pos[1]+start_pos[1])])
@@ -890,7 +728,6 @@ def play(screen=screen):
         del tiles[tile]
         if tile in render_box:
             del render_box[tile]
-    # Handle Decor ------------------------------------------- #
     remove_list = []
     for obj in decor:
         x = decor[obj][1]
@@ -934,7 +771,6 @@ def play(screen=screen):
         del decor[obj]
     if hit_decor:
         hit_decor_s.play()
-    # Particles ---------------------------------------------- #
     n = 0
     for particle in particles:
         # color, x, y, x_momentum, y_momentum, duration
@@ -950,7 +786,6 @@ def play(screen=screen):
             particles.pop(n)
             n -= 1
         n += 1
-    # Explosions --------------------------------------------- #
     n = 0
     for explosion in explosions:
         if explosion[1] == 0:
@@ -986,7 +821,6 @@ def play(screen=screen):
             explosions.pop(n)
             n -= 1
         n += 1
-    # Enemies ------------------------------------------------ #
     n = 0
     for enemy in enemies:
         enemy_img = None
@@ -1152,7 +986,6 @@ def play(screen=screen):
             if tile_z != -1:
                 ordered_render(enemy_img, render_pos)
         n += 1
-    # Render Entities 1 -------------------------------------- #
     weapon_img = weapons[current_weapon]
     x = player.x
     y = player.y
@@ -1162,7 +995,6 @@ def play(screen=screen):
         if random.randint(1, 5) == 1:
             dust.append([entity(render_x + 4, render_y + 18, 2, 2), random.randint(0, 20) / 20 - 0.5,
                          random.randint(0, 20) / 20 - 0.5, 0])
-    # Handle Mouse ------------------------------------------- #
     MX, MY = pygame.mouse.get_pos()
     if lock_mouse == True:
         if MX < 10:
@@ -1183,8 +1015,6 @@ def play(screen=screen):
     else:
         rate_x = dis_x / (abs(dis_x) + abs(dis_y))
         rate_y = dis_y / (abs(dis_x) + abs(dis_y))
-    # Render Entities 2 -------------------------------------- #
-    # dash gfx
     if dash_timer != -1:
         y = dash_start[1] - render_y
         x = dash_start[0] - render_x
@@ -1200,7 +1030,6 @@ def play(screen=screen):
                   [render_x + 4 - scroll_x - int(x / 2), render_y + 18 - scroll_y - int(y / 2)],
                   [render_x + 4 - scroll_x + perp_slope2[0] * d, render_y + 18 - scroll_y + perp_slope2[1] * d]]
         pygame.draw.polygon(display, (169, 59, 59), points)
-    # actual entities
     weapon_rot = point_degrees(((render_x - scroll_x) / 300, (render_y - scroll_y) / 200), (MX, MY))
     if attack_timer != -1:
         weapon_rot = attack_timer
@@ -1224,18 +1053,16 @@ def play(screen=screen):
     ordered_render(player_img, (render_x - scroll_x, render_y - scroll_y))
     scroll_x += (render_x - 150 - scroll_x) / 20
     scroll_y += (render_y - 100 - scroll_y) / 20
-
     for_render.sort()
     for img in for_render:
         display.blit(image_cache[img[4]], (img[2], img[3]))
     for_render = []
     image_cache = []
-    # Dust --------------------------------------------------- #
     n = 0
     for particle in dust:
         particle[0].x += particle[1]
         particle[0].y += particle[2]
-        if particle[0].animation == None:
+        if particle[0].animation is None:
             particle[0].animation = dust_anim
         ordered_render(particle[0].get_current_img().copy(), (particle[0].x - scroll_x, particle[0].y - scroll_y))
         particle[0].change_frame(1)
@@ -1244,7 +1071,6 @@ def play(screen=screen):
             dust.pop(n)
             n -= 1
         n += 1
-    # Projectiles -------------------------------------------- #
     for projectile in projectiles:
         obj = PhysicsObject(projectile[0], projectile[1], 20, 20)
         collisions = obj.move([projectile[2] * 3, projectile[3] * 3], get_nearby_tiles((obj.x, obj.y), tiles))
@@ -1272,7 +1098,6 @@ def play(screen=screen):
             player_knockback[1] -= e_rate_y * 4
             health -= 2
             hurt += 10
-    # Alerts ------------------------------------------------- #
     n = 0
     for alert in alerts:
         alert_w = get_text_width(alert[0], 1)
@@ -1286,7 +1111,6 @@ def play(screen=screen):
             alerts.pop(n)
             n -= 1
         n += 1
-    # GUI ---------------------------------------------------- #
     display.blit(bars_img, (0, 0))
     if health > 0:
         health_bar = pygame.Surface((int(health) + 1, 3))
@@ -1314,7 +1138,7 @@ def play(screen=screen):
     show_text(time_str, 300 - get_text_width(time_str, 1) - 1, 1, 1, 99999, font_0, display)
     y = 30
     for slot in inventory:
-        if slot[0] == None:
+        if slot[0] is None:
             slot[2] += (-30 - slot[2]) / 5
         else:
             slot[2] += (1 - slot[2]) / 5
@@ -1361,7 +1185,6 @@ def play(screen=screen):
     if new_game > 0:
         controls_img.set_alpha(new_game * 4)
         display.blit(controls_img, (112, 30))
-    # Buttons ------------------------------------------------ #
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -1447,7 +1270,6 @@ def play(screen=screen):
                             dash_s.play()
                         else:
                             alerts.append(['No Energy!', 0])
-    # Update ------------------------------------------------- #
     time_alive += 1
     if hurt > 0:
         hurt -= 1
