@@ -6,6 +6,7 @@ from datetime import datetime
 from copy import deepcopy
 mainClock = pygame.time.Clock()
 from pygame.locals import *
+pygame.mixer.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 pygame.display.set_caption('blade-runner')
@@ -471,8 +472,8 @@ for i in range(10):
 inventory = [[None, 0, -30], [None, 0, -30], [None, 0, -30], [None, 0, -30]]
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.65)
-def play(screen=screen):
-    global scroll_x, scroll_y, time_alive, weapon_rot, new_game, minutes, new_tile_timer, attack_timer, player_knockback, dash_timer, player, tiles, rate_y, rate_x, decor, current_weapon, projectiles, enemies, remove_tiles, particles, explosions, lock_mouse, dust, WINDOWWIDTH, WINDOWHEIGHT, for_render, image_cache, health, next_enemy, hurt, screen_shake, wenemy_offset, tile_z, dash_start, attack_base, weapon_gfx_img, energy, last_frame, paused, inventory, player_dir, FPS
+def play():
+    global screen, scroll_x, scroll_y, time_alive, weapon_rot, new_game, minutes, new_tile_timer, attack_timer, player_knockback, dash_timer, player, tiles, rate_y, rate_x, decor, current_weapon, projectiles, enemies, remove_tiles, particles, explosions, lock_mouse, dust, WINDOWWIDTH, WINDOWHEIGHT, for_render, image_cache, health, next_enemy, hurt, screen_shake, wenemy_offset, tile_z, dash_start, attack_base, weapon_gfx_img, energy, last_frame, paused, inventory, player_dir, FPS
     display.fill(SKY)
     if random.randint(1, 80) == 1:
         depth = random.randint(0, 5) / 10 + 0.25
