@@ -1,4 +1,3 @@
-# Use mouse right and left click and position to play
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame, sys, random, time, webbrowser, math
