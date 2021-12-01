@@ -1,8 +1,7 @@
 # Use mouse right and left click and position to play
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']='1'
-import pygame,sys,random,time,webbrowser,math
-from datetime import datetime
+import pygame,sys,random,time,math
 from copy import deepcopy
 mainClock=pygame.time.Clock()
 from pygame.locals import *
@@ -58,7 +57,7 @@ def show_text(Text,X,Y,Spacing,WidthLimit,Font,surface,double=1,overflow=_g):
 	if overflow==_g:
 		for char in Text:
 			if char not in[_O,B]:
-				try:Image=Font[str(char)][1];CurrentWord+=str(char)
+				try:CurrentWord+=str(char)
 				except KeyError:pass
 			else:
 				WordTotal=0
@@ -78,7 +77,6 @@ def show_text(Text,X,Y,Spacing,WidthLimit,Font,surface,double=1,overflow=_g):
 			else:
 				if char==_O:X+=Font[_S][0];X+=Spacing
 				if char==B:X=OriginalX;Y+=Font[_P]
-				CurrentWord=A
 			if X-OriginalX>WidthLimit:X=OriginalX;Y+=Font[_P]
 		return X,Y
 def generate_font(FontImage,FontSpacingMain,TileSize,TileSizeY,color):
