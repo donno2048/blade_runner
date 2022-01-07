@@ -9,6 +9,6 @@ setup(
     license='MIT',
     author='Elisha Hollander',
     classifiers=['Programming Language :: Python :: 3'],
-    install_requires=['pygame==2.0.1'],
+    install_requires=['pygame>=2.0.1'],
     entry_points={ 'console_scripts': [ 'blade-runner=blade_runner.__init__:main' ] }
 )
