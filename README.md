@@ -9,3 +9,5 @@ or from GitHub:
 to run it you need to run the command:
 
 `blade-runner`
+
+Thanks to fluffy potato for the original game.
