@@ -438,7 +438,7 @@ def play():
 	for obj in decor:
 		x=decor[obj][1];y=decor[obj][2]
 		try:z=render_box[obj][3]
-		except:z=-1
+		except KeyError:z=-1
 		if z!=-1:
 			render_pos=int(x*14-y*14)-scroll_x,int(x*7+y*7)+decor_images[decor[obj][0]][1]-scroll_y-z;ordered_render(decor_images[decor[obj][0]][0],render_pos);objR=pygame.Rect(x*32,y*32,32,32)
 			if attack_timer!=-1:
